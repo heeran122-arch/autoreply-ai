@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                Int       @id @default(autoincrement())
+  email             String    @unique
+  name              String?
+  googleRefreshToken String?   // stored encrypted
+  googleAccessToken  String?   // stored encrypted (optional)
+  tokenExpiry        DateTime? // optional access token expiry
+  agentEnabled      Boolean   @default(false)
+  settings          Json?     // JSON for tone and instructions
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  neverReplies      NeverReply[]
+  histories         History[]
+}
+
+model NeverReply {
+  id        Int    @id @default(autoincrement())
+  user      User   @relation(fields: [userId], references: [id])
+  userId    Int
+  value     String // email or domain
+  createdAt DateTime @default(now())
+}
+
+model History {
+  id           Int      @id @default(autoincrement())
+  user         User     @relation(fields: [userId], references: [id])
+  userId       Int
+  threadId     String
+  messageId    String
+  sender       String
+  subject      String
+  originalBody String   @db.Text
+  aiResponse   String   @db.Text
+  wasAutoSent   Boolean  @default(false)
+  needsReview  Boolean  @default(false)
+  createdAt    DateTime @default(now())
+}
