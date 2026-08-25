@@ -1,0 +1,8 @@
+# Ignore local node_modules and build artifacts
+node_modules
+dist
+client/node_modules
+server/node_modules
+.env
+.env.local
+.DS_Store
